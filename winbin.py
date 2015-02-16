@@ -5,14 +5,15 @@ from shutil import move, rmtree
 __author__ = 'AleB'
 __version__ = "0.0.1.0"
 
+nwin = (os.name != "nt" and os.name != "ce")
 
 class BColors:
-    HEADER = '\033[95m'
-    OK_BLUE = '\033[94m'
-    OK_GREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    END_C = '\033[0m'
+    HEADER = '\033[95m' if nwin else ''
+    OK_BLUE = '\033[94m' if nwin else ''
+    OK_GREEN = '\033[92m' if nwin else ''
+    WARNING = '\033[93m' if nwin else ''
+    FAIL = '\033[91m' if nwin else ''
+    END_C = '\033[0m' if nwin else ''
 
 
 class Bin(object):
@@ -154,18 +155,20 @@ def check_integrity(b):
 def check_arguments():
     ap = ArgumentParser()
     ap.description = 'WinBin v' + __version__ + '\nManages the >= Microsoft Windows Vista Recycle Bin.'
-    ap.add_argument("-d", "--directory", default=".", help="The $Recycle.Bin\%SID% directory")
+    ap.add_argument("-d", "--directory", default="", help="The $Recycle.Bin\<SID> directory")
     ap.add_argument("-n", "--navigate", action="store_true", default=False, help="Enters the navigation mode")
     # TODO: Shows elements that were in the specified path.
-    ap.print_usage()
     a = ap.parse_args()
-    if not os.path.exists(a.directory):
+    if a.directory == "" and not a.navigate:
+        ap.print_usage()
+    if a.directory != "" and not os.path.exists(a.directory):
         print(BColors.FAIL + "Specified directory does not exist (maybe wrong or maybe volume not mounted)." +
               BColors.END_C)
     return a
 
 
 def navigate_through(b):
+    print("Use the code to open or '..' to close the folder.\nUse 'rec N' to recover a file.")
     l = []
     while True:
         c = b.tree_get(l)
@@ -198,15 +201,16 @@ def navigate_through(b):
 
 
 def main():
+    if not nwin:
+        print("!!! Note that this script was not designed to work on Windows\nColours highlightings are disabled.\n")
     a = check_arguments()
-    b = Bin(a.directory)
-    b.load_data()
-    check_integrity(b)
+    b = Bin(a.directory if a.directory != "" else ".")
+    if a.directory != "":
+        b.load_data()
+        check_integrity(b)
     if a.navigate:
         b.build_tree()
         navigate_through(b)
-    else:
-        pass
 
 if __name__ == "__main__":
     try:
