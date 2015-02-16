@@ -5,8 +5,8 @@ Usage
 -----
 It is suggested to use this script on linux as the use cases are (bin files recovery from a not working Winsows installation)
 
-To check your bin
-python3.4 winbin.py [-d <$RecycleBin directory>]
+To check your bin  
+`python3.4 winbin.py [-d <$RecycleBin directory>]`
 
-To explore and check
-python3.4 winbin.py [-d <$RecycleBin directory>] -n
+To explore and check  
+`python3.4 winbin.py [-d <$RecycleBin directory>] -n`
